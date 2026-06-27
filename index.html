@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percetakan Jaya — Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white: #ffffff;
+  --black: #111111;
+  --gray-light: #f5f5f5;
+  --gray-mid: #e0e0e0;
+  --gray-text: #888888;
+  --green: #1a7d4a;
+  --green-bg: #eaf5ef;
+  --amber: #b4790f;
+  --amber-bg: #fbf2e2;
+  --red: #c0392b;
+  --red-bg: #fbeae8;
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--white);
+  color: var(--black);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; cursor: pointer; }
+button { font-family: var(--font); }
+
+/* ══════════════ LOGIN ══════════════ */
+.login-screen {
+  display: none;                    /* <-- ditambahkan: sembunyikan default */
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  padding: 24px;
+}
+.login-screen.active {             /* <-- ditambahkan: tampilkan saat ada class active */
+  display: flex;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.login-tagline {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--gray-text);
+  margin-bottom: 40px;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+
+.field-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.field-input, .field-select {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-mid);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field-input:focus, .field-select:focus { border-color: var(--black); }
+
+.role-picker { display: flex; gap: 8px; margin-bottom: 4px; }
+.role-pill {
+  flex: 1;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 10px 4px;
+  border: 1px solid var(--gray-mid);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.role-pill.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+.login-error {
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 0.05em;
+  display: none;
+}
+.login-error.show { display: block; }
+
+.login-hint {
+  margin-top: 28px;
+  font-size: 10.5px;
+  color: var(--gray-text);
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  border-top: 1px solid var(--gray-mid);
+  padding-top: 18px;
+}
+.login-hint b { color: var(--black); }
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: var(--black);
+  color: var(--white);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #333; }
+.btn-primary:disabled { background: var(--gray-mid); color: var(--gray-text); cursor: not-allowed; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--white);
+  color: var(--black);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--gray-mid);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--black); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+.btn-ghost:hover { color: var(--black); }
+
+.btn-danger { color: var(--red); }
+.btn-danger:hover { opacity: 0.7; }
+
+.btn-sm { padding: 7px 14px; font-size: 9.5px; }
+
+/* ══════════════ APP SHELL ══════════════ */
+.app-shell { display: none; min-height: 100vh; }
+.app-shell.active { display: flex; }
+
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--gray-mid);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-brand {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--gray-mid);
+}
+.sidebar-logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+.sidebar-role {
+  font-size: 9.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  margin-top: 4px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.nav-group-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  padding: 14px 24px 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 24px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  color: #444;
+  transition: all 0.15s;
+}
+.nav-item:hover { background: var(--gray-light); color: var(--black); }
+.nav-item.active {
+  border-left-color: var(--black);
+  background: var(--gray-light);
+  color: var(--black);
+  font-weight: 700;
+}
+.nav-item i { width: 14px; text-align: center; font-size: 12px; }
+
+.sidebar-footer {
+  padding: 16px 24px 22px;
+  border-top: 1px solid var(--gray-mid);
+}
+.sidebar-user {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.sidebar-email {
+  font-size: 10px;
+  color: var(--gray-text);
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+/* ══════════════ MAIN CONTENT ══════════════ */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.content-header {
+  position: sticky;
+  top: 0;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--gray-mid);
+  padding: 22px 36px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.content-body { padding: 32px 36px 60px; }
+
+.view { display: none; }
+.view.active { display: block; animation: viewIn 0.3s ease; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══════════════ STAT CARDS ══════════════ */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--gray-mid);
+  border: 1px solid var(--gray-mid);
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--white);
+  padding: 22px 24px;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  margin-bottom: 12px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 6px;
+}
+
+.stat-delta {
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.stat-delta.up { color: var(--green); }
+.stat-delta.down { color: var(--red); }
+.stat-delta.flat { color: var(--gray-text); }
+
+/* ══════════════ PANELS / SECTIONS ══════════════ */
+.panel {
+  border: 1px solid var(--gray-mid);
+  margin-bottom: 28px;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--gray-mid);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.panel-sub {
+  font-size: 10.5px;
+  color: var(--gray-text);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.panel-body { padding: 22px; }
+.panel-body.no-pad { padding: 0; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 28px;
+}
+
+/* ══════════════ TABLES ══════════════ */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+thead th {
+  text-align: left;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--gray-mid);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--gray-mid);
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--gray-light); }
+.cell-strong { font-weight: 700; }
+.cell-muted { color: var(--gray-text); }
+.table-actions { display: flex; gap: 14px; }
+.table-actions a {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.empty-row td {
+  text-align: center;
+  padding: 40px 22px;
+  color: var(--gray-text);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-top: 1px solid var(--gray-mid);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--gray-text);
+}
+.pagination-btns { display: flex; gap: 6px; }
+.page-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gray-mid);
+  background: var(--white);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.page-btn:hover:not(:disabled) { border-color: var(--black); }
+.page-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+.page-btn:disabled { color: var(--gray-mid); cursor: not-allowed; }
+
+/* ══════════════ BADGES ══════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-gray { background: var(--gray-light); color: var(--gray-text); }
+
+/* ══════════════ FORMS / MODAL ══════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal-box {
+  width: 100%;
+  max-width: 460px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--white);
+  transform: translateY(16px);
+  transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box { transform: translateY(0); }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gray-mid);
+}
+.modal-title { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.modal-footer {
+  padding: 18px 24px;
+  border-top: 1px solid var(--gray-mid);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-textarea {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-mid);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s;
+}
+.field-textarea:focus { border-color: var(--black); }
+
+/* ══════════════ CHARTS / PROGRESS ══════════════ */
+.chart-wrap { position: relative; width: 100%; }
+.chart-legend { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: 0.05em; color: var(--gray-text); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.bar-list { display: flex; flex-direction: column; gap: 14px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label { font-size: 10.5px; letter-spacing: 0.04em; width: 110px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; height: 8px; background: var(--gray-light); position: relative; }
+.bar-fill { height: 100%; background: var(--black); transition: width 0.6s ease; }
+.bar-value { font-size: 10.5px; font-weight: 700; width: 40px; text-align: right; flex-shrink: 0; }
+
+/* ══════════════ REFERRAL / AFFILIATE ══════════════ */
+.referral-box {
+  border: 1px solid var(--gray-mid);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.referral-link-row {
+  display: flex;
+  gap: 8px;
+}
+.referral-link-input {
+  flex: 1;
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-mid);
+  background: var(--gray-light);
+  color: var(--black);
+  letter-spacing: 0.02em;
+}
+.coupon-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border: 1px dashed var(--gray-mid);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  width: fit-content;
+}
+
+/* ══════════════ TOAST ══════════════ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--black);
+  color: var(--white);
+  padding: 13px 24px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ══════════════ INVOICE PRINT ══════════════ */
+.invoice-paper {
+  background: var(--white);
+  border: 1px solid var(--gray-mid);
+  padding: 40px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.invoice-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--black);
+  margin-bottom: 24px;
+}
+.invoice-brand { font-size: 16px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+.invoice-meta { text-align: right; font-size: 11px; color: var(--gray-text); line-height: 1.7; }
+.invoice-meta b { color: var(--black); }
+.invoice-parties { display: flex; justify-content: space-between; margin-bottom: 28px; gap: 24px; }
+.invoice-party-label { font-size: 9.5px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-text); margin-bottom: 6px; }
+.invoice-party-name { font-size: 13px; font-weight: 700; }
+.invoice-totals { margin-top: 18px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.invoice-total-row { display: flex; justify-content: space-between; width: 240px; font-size: 12px; }
+.invoice-total-row.grand { font-weight: 700; font-size: 15px; border-top: 1px solid var(--black); padding-top: 8px; margin-top: 4px; }
+
+@media print {
+  .sidebar, .content-header, .no-print { display: none !important; }
+  .main-content { height: auto; }
+  body { font-size: 12px; }
+}
+
+/* ══════════════ RESPONSIVE ══════════════ */
+@media (max-width: 1000px) {
+  .two-col, .dashboard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 800px) {
+  .sidebar { width: 64px; }
+  .sidebar-brand, .sidebar-footer { padding: 18px 10px; text-align: center; }
+  .sidebar-logo { font-size: 10px; }
+  .sidebar-role, .sidebar-email, .sidebar-user, .nav-group-label { display: none; }
+  .nav-item span { display: none; }
+  .nav-item { justify-content: center; padding: 13px 0; }
+  .content-header, .content-body { padding-left: 18px; padding-right: 18px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .page-title { font-size: 16px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div class="login-screen active" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Percetakan Jaya</div>
+    <div class="login-tagline">Sistem Manajemen Internal</div>
+
+    <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+      <div>
+        <label class="field-label">Masuk Sebagai</label>
+        <div class="role-picker">
+          <div class="role-pill active" data-role="super_admin" onclick="selectLoginRole('super_admin')">Super Admin</div>
+          <div class="role-pill" data-role="admin" onclick="selectLoginRole('admin')">Admin</div>
+          <div class="role-pill" data-role="affiliate" onclick="selectLoginRole('affiliate')">Affiliate</div>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Email</label>
+        <input type="email" class="field-input" id="login-email" required placeholder="nama@email.com">
+      </div>
+      <div>
+        <label class="field-label">Password</label>
+        <input type="password" class="field-input" id="login-password" required placeholder="••••••••">
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <button type="submit" class="btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk</button>
+    </form>
+
+    <div class="login-hint">
+      <b>Akun demo</b><br>
+      Super Admin — ceo@percetakanjaya.com / 123<br>
+      Admin — admin@percetakanjaya.com / 123<br>
+      Affiliate — budi@aff.com / 123
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP SHELL ══════════════ -->
+<div class="app-shell" id="app-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">Percetakan Jaya</div>
+      <div class="sidebar-role" id="sidebar-role-label"></div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-name"></div>
+      <div class="sidebar-email" id="sidebar-user-email"></div>
+      <button class="btn-ghost" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-header">
+      <div>
+        <div class="page-eyebrow">Percetakan Jaya</div>
+        <div class="page-title" id="page-title">Dashboard</div>
+      </div>
+    </div>
+
+    <div class="content-body">
+      <!-- Super Admin views -->
+      <div class="view" id="view-dashboard-keuangan"></div>
+      <div class="view" id="view-dashboard-performa"></div>
+      <div class="view" id="view-instruksi-produksi"></div>
+      <div class="view" id="view-kelola-user"></div>
+      <div class="view" id="view-kelola-produk"></div>
+      <div class="view" id="view-kelola-order-superadmin"></div>
+
+      <!-- Admin views -->
+      <div class="view" id="view-dashboard-operasional"></div>
+      <div class="view" id="view-kelola-order"></div>
+      <div class="view" id="view-kelola-klien"></div>
+      <div class="view" id="view-kelola-affiliate"></div>
+      <div class="view" id="view-buat-invoice"></div>
+
+      <!-- Affiliate views -->
+      <div class="view" id="view-dashboard-affiliate"></div>
+      <div class="view" id="view-link-referral"></div>
+      <div class="view" id="view-statistik-affiliate"></div>
+    </div>
+  </main>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA STORE — simulasi database dengan localStorage
+   ============================================================ */
+
+const STORAGE_KEY = 'percetakan_app_data_v1';
+
+function getDefaultData() {
+  return {
+    users: [
+      { id: 1, name: 'Pak Hartono', role: 'super_admin', email: 'ceo@percetakanjaya.com', password: '123' },
+      { id: 2, name: 'Sari (CS Admin)', role: 'admin', email: 'admin@percetakanjaya.com', password: '123' },
+      { id: 3, name: 'Budi Santoso', role: 'affiliate', email: 'budi@aff.com', password: '123' },
+      { id: 4, name: 'Rina Wijaya', role: 'affiliate', email: 'rina@aff.com', password: '123' }
+    ],
+
+    clients: [
+      { id: 1, name: 'PT Abadi Cemerlang', email: 'purchasing@abadicemerlang.co.id', phone: '0812-3456-7890', address: 'Jl. Sudirman No. 45, Jakarta Selatan' },
+      { id: 2, name: 'CV Maju Bersama', email: 'order@majubersama.com', phone: '0813-2233-4455', address: 'Jl. Gatot Subroto No. 12, Bandung' },
+      { id: 3, name: 'Toko Sumber Rejeki', email: 'sumberrejeki@gmail.com', phone: '0856-7788-9900', address: 'Jl. Ahmad Yani No. 88, Surabaya' },
+      { id: 4, name: 'Yayasan Pendidikan Nusantara', email: 'admin@ypn.or.id', phone: '0821-4567-1234', address: 'Jl. Diponegoro No. 3, Semarang' }
+    ],
+
+    orders: [
+      { id: 1, clientId: 1, product: 'Cetak Brosur A5', qty: 1000, price: 1500, status: 'selesai', date: '2026-05-12', affiliateId: null },
+      { id: 2, clientId: 2, product: 'Banner Outdoor 3x2m', qty: 5, price: 120000, status: 'kirim', date: '2026-06-02', affiliateId: 3 },
+      { id: 3, clientId: 3, product: 'Kartu Nama Premium', qty: 500, price: 800, status: 'proses', date: '2026-06-10', affiliateId: null },
+      { id: 4, clientId: 4, product: 'Buku Tahunan Sekolah', qty: 200, price: 35000, status: 'proses', date: '2026-06-15', affiliateId: 4 },
+      { id: 5, clientId: 1, product: 'Cetak Brosur A5', qty: 2000, price: 1500, status: 'baru', date: '2026-06-20', affiliateId: 3 },
+      { id: 6, clientId: 2, product: 'Stiker Vinyl Custom', qty: 300, price: 5000, status: 'baru', date: '2026-06-22', affiliateId: null },
+      { id: 7, clientId: 3, product: 'Spanduk Promosi', qty: 10, price: 45000, status: 'proses', date: '2026-06-24', affiliateId: 4 },
+      { id: 8, clientId: 4, product: 'Cetak Brosur A5', qty: 1500, price: 1500, status: 'selesai', date: '2026-06-25', affiliateId: null }
+    ],
+
+    affiliates: [
+      { id: 1, userId: 3, referralLink: 'https://percetakanjaya.com/?ref=budi123', coupon: 'BUDI10', commissionRate: 10, clicks: 184, active: true },
+      { id: 2, userId: 4, referralLink: 'https://percetakanjaya.com/?ref=rina456', coupon: 'RINA15', commissionRate: 15, clicks: 97, active: true }
+    ],
+
+    productions: [
+      { id: 1, instruction: 'Cetak 1000 pcs Brosur A5 untuk PT Abadi Cemerlang, finishing laminasi doff', assignedTo: 'Tim A', deadline: '2026-06-28', status: 'pending', orderId: 3 },
+      { id: 2, instruction: 'Produksi Buku Tahunan 200 eks, cover hardcover, jilid spiral', assignedTo: 'Tim B', deadline: '2026-06-30', status: 'progress', orderId: 4 },
+      { id: 3, instruction: 'Cetak Spanduk Promosi 10 pcs ukuran 3x1m', assignedTo: 'Tim A', deadline: '2026-06-29', status: 'pending', orderId: 7 }
+    ],
+
+    finances: {
+      months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+      income:   [42000000, 38500000, 51000000, 47500000, 55000000, 49800000],
+      expenses: [28000000, 26000000, 31500000, 29800000, 33000000, 30200000]
+    }
+  };
+}
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    const fresh = getDefaultData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    return fresh;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    const fresh = getDefaultData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    return fresh;
+  }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+}
+
+function resetData() {
+  localStorage.removeItem(STORAGE_KEY);
+  DB = loadData();
+}
+
+let DB = loadData();
+
+/* ---------- Helpers ---------- */
+function nextId(arr) {
+  return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
+}
+
+function formatRupiah(n) {
+  return 'Rp' + Math.round(n).toLocaleString('id-ID');
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function getClient(id) {
+  return DB.clients.find(c => c.id === id);
+}
+
+function getUser(id) {
+  return DB.users.find(u => u.id === id);
+}
+
+function getAffiliateByUserId(userId) {
+  return DB.affiliates.find(a => a.userId === userId);
+}
+
+function orderTotal(order) {
+  return order.qty * order.price;
+}
+
+const STATUS_LABELS = {
+  baru: { label: 'Baru', badge: 'badge-gray' },
+  proses: { label: 'Proses', badge: 'badge-amber' },
+  kirim: { label: 'Kirim', badge: 'badge-green' },
+  selesai: { label: 'Selesai', badge: 'badge-green' }
+};
+
+const PRODUCTION_STATUS_LABELS = {
+  pending: { label: 'Menunggu', badge: 'badge-gray' },
+  progress: { label: 'Dikerjakan', badge: 'badge-amber' },
+  done: { label: 'Selesai', badge: 'badge-green' }
+};
+
+</script>
+<script>
+/* ============================================================
+   AUTH & SESSION
+   ============================================================ */
+
+const SESSION_KEY = 'percetakan_app_session_v1';
+let currentUser = null;
+let selectedLoginRole = 'super_admin';
+
+const ROLE_LABELS = {
+  super_admin: 'Super Admin (CEO)',
+  admin: 'Admin (CS & Operasional)',
+  affiliate: 'Affiliate (Mitra)'
+};
+
+function initAuth() {
+  const raw = sessionStorage.getItem(SESSION_KEY);
+  if (raw) {
+    try {
+      const session = JSON.parse(raw);
+      const user = DB.users.find(u => u.id === session.userId);
+      if (user) {
+        currentUser = user;
+        showApp();
+        return;
+      }
+    } catch (e) { /* fall through to login */ }
+  }
+  showLogin();
+}
+
+function showLogin() {
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('app-shell').classList.remove('active');
+}
+
+function showApp() {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-shell').classList.add('active');
+  renderSidebarForRole(currentUser.role);
+  document.getElementById('sidebar-user-name').textContent = currentUser.name;
+  document.getElementById('sidebar-user-email').textContent = currentUser.email;
+  document.getElementById('sidebar-role-label').textContent = ROLE_LABELS[currentUser.role];
+  navigateTo(defaultViewForRole(currentUser.role));
+}
+
+function selectLoginRole(role) {
+  selectedLoginRole = role;
+  document.querySelectorAll('.role-pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.role === role);
+  });
+  document.getElementById('login-error').classList.remove('show');
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+
+  const user = DB.users.find(u =>
+    u.email.toLowerCase() === email &&
+    u.password === password &&
+    u.role === selectedLoginRole
+  );
+
+  if (!user) {
+    errorEl.textContent = 'Email, password, atau role tidak cocok. Coba lagi.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  currentUser = user;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ userId: user.id }));
+  document.getElementById('login-form').reset();
+  errorEl.classList.remove('show');
+  showApp();
+}
+
+function handleLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  showLogin();
+}
+
+function defaultViewForRole(role) {
+  if (role === 'super_admin') return 'dashboard-keuangan';
+  if (role === 'admin') return 'dashboard-operasional';
+  return 'dashboard-affiliate';
+}
+
+/* Guard: pastikan view yang diminta diizinkan untuk role saat ini */
+const VIEW_PERMISSIONS = {
+  'dashboard-keuangan': ['super_admin'],
+  'dashboard-performa': ['super_admin'],
+  'instruksi-produksi': ['super_admin'],
+  'kelola-user': ['super_admin'],
+  'kelola-produk': ['super_admin'],
+  'kelola-order-superadmin': ['super_admin'],
+
+  'dashboard-operasional': ['admin'],
+  'kelola-order': ['admin'],
+  'kelola-klien': ['admin'],
+  'kelola-affiliate': ['admin'],
+  'buat-invoice': ['admin'],
+
+  'dashboard-affiliate': ['affiliate'],
+  'link-referral': ['affiliate'],
+  'statistik-affiliate': ['affiliate']
+};
+
+function isViewAllowed(viewId, role) {
+  const allowed = VIEW_PERMISSIONS[viewId];
+  return allowed && allowed.includes(role);
+}
+
+</script>
+<script>
+/* ============================================================
+   NAVIGATION — sidebar per role & routing antar view
+   ============================================================ */
+
+const NAV_CONFIG = {
+  super_admin: [
+    { group: 'Keuangan', items: [
+      { id: 'dashboard-keuangan', label: 'Dashboard Keuangan', icon: 'fa-chart-line' }
+    ]},
+    { group: 'Bisnis', items: [
+      { id: 'dashboard-performa', label: 'Dashboard Performa', icon: 'fa-gauge-high' },
+      { id: 'instruksi-produksi', label: 'Instruksi Produksi', icon: 'fa-clipboard-list' }
+    ]},
+    { group: 'Kelola Data', items: [
+      { id: 'kelola-user', label: 'Kelola User', icon: 'fa-users' },
+      { id: 'kelola-produk', label: 'Kelola Produk', icon: 'fa-box' },
+      { id: 'kelola-order-superadmin', label: 'Kelola Order', icon: 'fa-receipt' }
+    ]}
+  ],
+  admin: [
+    { group: 'Operasional', items: [
+      { id: 'dashboard-operasional', label: 'Dashboard Operasional', icon: 'fa-gauge-high' },
+      { id: 'kelola-order', label: 'Kelola Order', icon: 'fa-receipt' },
+      { id: 'buat-invoice', label: 'Buat Invoice', icon: 'fa-file-invoice' }
+    ]},
+    { group: 'Relasi', items: [
+      { id: 'kelola-klien', label: 'Data Klien', icon: 'fa-address-book' },
+      { id: 'kelola-affiliate', label: 'Program Affiliate', icon: 'fa-handshake' }
+    ]}
+  ],
+  affiliate: [
+    { group: 'Performa', items: [
+      { id: 'dashboard-affiliate', label: 'Dashboard Performa', icon: 'fa-gauge-high' },
+      { id: 'statistik-affiliate', label: 'Statistik', icon: 'fa-chart-simple' }
+    ]},
+    { group: 'Promosi', items: [
+      { id: 'link-referral', label: 'Link Referral', icon: 'fa-link' }
+    ]}
+  ]
+};
+
+function renderSidebarForRole(role) {
+  const nav = document.getElementById('sidebar-nav');
+  const groups = NAV_CONFIG[role] || [];
+  nav.innerHTML = groups.map(group => `
+    <div class="nav-group-label">${group.group}</div>
+    ${group.items.map(item => `
+      <div class="nav-item" data-view="${item.id}" onclick="navigateTo('${item.id}')">
+        <i class="fa-solid ${item.icon}"></i>
+        <span>${item.label}</span>
+      </div>
+    `).join('')}
+  `).join('');
+}
+
+function navigateTo(viewId) {
+  if (!currentUser) return;
+
+  if (!isViewAllowed(viewId, currentUser.role)) {
+    showToast('Anda tidak memiliki akses ke halaman tersebut.');
+    viewId = defaultViewForRole(currentUser.role);
+  }
+
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === viewId);
+  });
+
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById('view-' + viewId);
+  if (target) target.classList.add('active');
+
+  renderView(viewId);
+
+  document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* Dispatcher: panggil fungsi render yang sesuai untuk tiap view */
+function renderView(viewId) {
+  const renderers = {
+    'dashboard-keuangan': renderDashboardKeuangan,
+    'dashboard-performa': renderDashboardPerforma,
+    'instruksi-produksi': renderInstruksiProduksi,
+    'kelola-user': renderKelolaUser,
+    'kelola-produk': renderKelolaProduk,
+    'kelola-order-superadmin': () => renderKelolaOrder('kelola-order-superadmin', true),
+
+    'dashboard-operasional': renderDashboardOperasional,
+    'kelola-order': () => renderKelolaOrder('kelola-order', false),
+    'kelola-klien': renderKelolaKlien,
+    'kelola-affiliate': renderKelolaAffiliate,
+    'buat-invoice': renderBuatInvoice,
+
+    'dashboard-affiliate': renderDashboardAffiliate,
+    'link-referral': renderLinkReferral,
+    'statistik-affiliate': renderStatistikAffiliate
+  };
+  if (renderers[viewId]) renderers[viewId]();
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function openModal(modalId) {
+  document.getElementById(modalId).classList.add('open');
+}
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('open');
+}
+
+</script>
+<script>
+/* ============================================================
+   VIEWS — SUPER ADMIN
+   ============================================================ */
+
+/* ---------- 1. Dashboard Keuangan ---------- */
+function renderDashboardKeuangan() {
+  const f = DB.finances;
+  const totalIncome = f.income.reduce((a, b) => a + b, 0);
+  const totalExpense = f.expenses.reduce((a, b) => a + b, 0);
+  const profit = totalIncome - totalExpense;
+  const margin = ((profit / totalIncome) * 100).toFixed(1);
+
+  document.getElementById('view-dashboard-keuangan').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Pendapatan (6 Bln)</div>
+        <div class="stat-value">${formatRupiah(totalIncome)}</div>
+        <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> Akumulasi Jan–Jun</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Biaya (6 Bln)</div>
+        <div class="stat-value">${formatRupiah(totalExpense)}</div>
+        <div class="stat-delta down"><i class="fa-solid fa-arrow-down"></i> Akumulasi Jan–Jun</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Keuntungan Bersih</div>
+        <div class="stat-value">${formatRupiah(profit)}</div>
+        <div class="stat-delta up">Margin ${margin}%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rata-rata / Bulan</div>
+        <div class="stat-value">${formatRupiah(profit / f.months.length)}</div>
+        <div class="stat-delta flat">Profit bulanan</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Grafik Cash Flow</div>
+          <div class="panel-sub">Pemasukan vs pengeluaran per bulan</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap">
+          <canvas id="cashflow-canvas" height="220"></canvas>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#111111"></span> Pemasukan</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#cccccc"></span> Pengeluaran</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Laporan Laba-Rugi (Income Statement)</div>
+          <div class="panel-sub">Rincian per bulan, Januari – Juni 2026</div>
+        </div>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Laba Bersih</th><th>Margin</th></tr>
+            </thead>
+            <tbody>
+              ${f.months.map((m, i) => {
+                const inc = f.income[i], exp = f.expenses[i], p = inc - exp;
+                const mg = ((p / inc) * 100).toFixed(1);
+                return `<tr>
+                  <td class="cell-strong">${m} 2026</td>
+                  <td>${formatRupiah(inc)}</td>
+                  <td class="cell-muted">${formatRupiah(exp)}</td>
+                  <td class="cell-strong">${formatRupiah(p)}</td>
+                  <td><span class="badge badge-green">${mg}%</span></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  drawCashflowChart();
+}
+
+function drawCashflowChart() {
+  const canvas = document.getElementById('cashflow-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 220 * dpr;
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = 220;
+
+  const f = DB.finances;
+  const maxVal = Math.max(...f.income, ...f.expenses) * 1.15;
+  const padL = 50, padB = 28, padT = 12, padR = 12;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const groupW = chartW / f.months.length;
+  const barW = groupW * 0.32;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // grid lines
+  ctx.strokeStyle = '#e0e0e0';
+  ctx.lineWidth = 1;
+  ctx.font = '10px Helvetica Neue, Arial, sans-serif';
+  ctx.fillStyle = '#888888';
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + chartH - (chartH * i / 4);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    const val = (maxVal * i / 4);
+    ctx.fillText((val / 1000000).toFixed(0) + 'jt', 4, y + 3);
+  }
+
+  // bars
+  f.months.forEach((m, i) => {
+    const x0 = padL + i * groupW + groupW * 0.18;
+    const incH = (f.income[i] / maxVal) * chartH;
+    const expH = (f.expenses[i] / maxVal) * chartH;
+
+    ctx.fillStyle = '#111111';
+    ctx.fillRect(x0, padT + chartH - incH, barW, incH);
+
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(x0 + barW + 4, padT + chartH - expH, barW, expH);
+
+    ctx.fillStyle = '#888888';
+    ctx.textAlign = 'center';
+    ctx.fillText(m, x0 + barW + 2, H - 8);
+  });
+  ctx.textAlign = 'left';
+}
+
+/* ---------- 2. Dashboard Performa Bisnis ---------- */
+function renderDashboardPerforma() {
+  const now = new Date('2026-06-27');
+  const thisMonthOrders = DB.orders.filter(o => o.date.startsWith('2026-06'));
+  const lastMonthOrders = DB.orders.filter(o => o.date.startsWith('2026-05'));
+  const delta = thisMonthOrders.length - lastMonthOrders.length;
+  const deltaPct = lastMonthOrders.length ? ((delta / lastMonthOrders.length) * 100).toFixed(0) : 0;
+
+  // produk terlaris
+  const productCount = {};
+  DB.orders.forEach(o => { productCount[o.product] = (productCount[o.product] || 0) + o.qty; });
+  const topProducts = Object.entries(productCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const maxQty = topProducts.length ? topProducts[0][1] : 1;
+
+  document.getElementById('view-dashboard-performa').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Order Bulan Ini</div>
+        <div class="stat-value">${thisMonthOrders.length}</div>
+        <div class="stat-delta ${delta >= 0 ? 'up' : 'down'}">
+          <i class="fa-solid fa-arrow-${delta >= 0 ? 'up' : 'down'}"></i> ${Math.abs(deltaPct)}% vs bulan lalu
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Order Bulan Lalu</div>
+        <div class="stat-value">${lastMonthOrders.length}</div>
+        <div class="stat-delta flat">Mei 2026</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rata-rata Waktu Produksi</div>
+        <div class="stat-value">4.2 <span style="font-size:14px;">hari</span></div>
+        <div class="stat-delta flat">Estimasi berdasarkan order selesai</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Order (semua waktu)</div>
+        <div class="stat-value">${DB.orders.length}</div>
+        <div class="stat-delta flat">Sejak awal pencatatan</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Produk Terlaris</div>
+            <div class="panel-sub">Berdasarkan total kuantitas terjual</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="bar-list">
+            ${topProducts.map(([name, qty]) => `
+              <div class="bar-row">
+                <div class="bar-label" title="${name}">${name}</div>
+                <div class="bar-track"><div class="bar-fill" style="width:${(qty / maxQty) * 100}%"></div></div>
+                <div class="bar-value">${qty}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Distribusi Status Order</div>
+        </div>
+        <div class="panel-body">
+          ${renderStatusDistribution()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStatusDistribution() {
+  const counts = { baru: 0, proses: 0, kirim: 0, selesai: 0 };
+  DB.orders.forEach(o => counts[o.status]++);
+  const total = DB.orders.length || 1;
+  return `
+    <div class="bar-list">
+      ${Object.entries(counts).map(([status, count]) => `
+        <div class="bar-row">
+          <div class="bar-label">${STATUS_LABELS[status].label}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(count / total) * 100}%"></div></div>
+          <div class="bar-value">${count}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/* ---------- 3. Manajemen Tim Produksi ---------- */
+function renderInstruksiProduksi() {
+  document.getElementById('view-instruksi-produksi').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Instruksi Kerja</div>
+          <div class="panel-sub">Berikan instruksi ke tim produksi & pantau statusnya</div>
+        </div>
+        <button class="btn-primary" onclick="openProductionModal()"><i class="fa-solid fa-plus"></i> Instruksi Baru</button>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Instruksi</th><th>Tim</th><th>Deadline</th><th>Status</th><th>Aksi</th></tr>
+            </thead>
+            <tbody>
+              ${DB.productions.length === 0 ? `<tr class="empty-row"><td colspan="5">Belum ada instruksi produksi.</td></tr>` :
+                DB.productions.map(p => `
+                  <tr>
+                    <td style="max-width:320px;">${p.instruction}</td>
+                    <td class="cell-strong">${p.assignedTo}</td>
+                    <td>${formatDate(p.deadline)}</td>
+                    <td><span class="badge ${PRODUCTION_STATUS_LABELS[p.status].badge}">${PRODUCTION_STATUS_LABELS[p.status].label}</span></td>
+                    <td class="table-actions">
+                      <a onclick="cycleProductionStatus(${p.id})">Ubah Status</a>
+                      <a class="btn-danger" onclick="deleteProduction(${p.id})">Hapus</a>
+                    </td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-production">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">Instruksi Produksi Baru</div>
+          <button class="modal-close" onclick="closeModal('modal-production')">&times;</button>
+        </div>
+        <form id="production-form" onsubmit="submitProduction(event)">
+          <div class="modal-body">
+            <div>
+              <label class="field-label">Pesan Instruksi</label>
+              <textarea class="field-textarea" id="prod-instruction" required placeholder="Contoh: Cetak 500 pcs brosur A5, finishing laminasi doff"></textarea>
+            </div>
+            <div>
+              <label class="field-label">Assign ke Tim</label>
+              <select class="field-select" id="prod-team" required>
+                <option value="Tim A">Tim A</option>
+                <option value="Tim B">Tim B</option>
+                <option value="Tim C">Tim C</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Deadline</label>
+              <input type="date" class="field-input" id="prod-deadline" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-production')">Batal</button>
+            <button type="submit" class="btn-primary">Kirim Instruksi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function openProductionModal() {
+  document.getElementById('production-form').reset();
+  openModal('modal-production');
+}
+
+function submitProduction(event) {
+  event.preventDefault();
+  const instruction = document.getElementById('prod-instruction').value.trim();
+  const assignedTo = document.getElementById('prod-team').value;
+  const deadline = document.getElementById('prod-deadline').value;
+
+  DB.productions.push({
+    id: nextId(DB.productions),
+    instruction, assignedTo, deadline,
+    status: 'pending', orderId: null
+  });
+  saveData();
+  closeModal('modal-production');
+  showToast('Instruksi produksi berhasil dikirim.');
+  renderInstruksiProduksi();
+}
+
+function cycleProductionStatus(id) {
+  const p = DB.productions.find(x => x.id === id);
+  if (!p) return;
+  const order = ['pending', 'progress', 'done'];
+  const idx = order.indexOf(p.status);
+  p.status = order[(idx + 1) % order.length];
+  saveData();
+  showToast(`Status diubah ke "${PRODUCTION_STATUS_LABELS[p.status].label}".`);
+  renderInstruksiProduksi();
+}
+
+function deleteProduction(id) {
+  if (!confirm('Hapus instruksi produksi ini?')) return;
+  DB.productions = DB.productions.filter(x => x.id !== id);
+  saveData();
+  showToast('Instruksi produksi dihapus.');
+  renderInstruksiProduksi();
+}
+
+/* ---------- 4. Kelola User ---------- */
+function renderKelolaUser() {
+  document.getElementById('view-kelola-user').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Kelola User</div>
+          <div class="panel-sub">${DB.users.length} user terdaftar</div>
+        </div>
+        <button class="btn-primary" onclick="openUserModal()"><i class="fa-solid fa-plus"></i> Tambah User</button>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Aksi</th></tr></thead>
+            <tbody>
+              ${DB.users.map(u => `
+                <tr>
+                  <td class="cell-strong">${u.name}</td>
+                  <td class="cell-muted">${u.email}</td>
+                  <td><span class="badge badge-gray">${ROLE_LABELS[u.role]}</span></td>
+                  <td class="table-actions">
+                    <a onclick="openUserModal(${u.id})">Edit</a>
+                    <a class="btn-danger" onclick="deleteUser(${u.id})">Hapus</a>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-user">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title" id="user-modal-title">Tambah User</div>
+          <button class="modal-close" onclick="closeModal('modal-user')">&times;</button>
+        </div>
+        <form id="user-form" onsubmit="submitUser(event)">
+          <input type="hidden" id="user-id">
+          <div class="modal-body">
+            <div>
+              <label class="field-label">Nama Lengkap</label>
+              <input class="field-input" id="user-name" required>
+            </div>
+            <div>
+              <label class="field-label">Email</label>
+              <input type="email" class="field-input" id="user-email" required>
+            </div>
+            <div>
+              <label class="field-label">Password</label>
+              <input type="text" class="field-input" id="user-password" required>
+            </div>
+            <div>
+              <label class="field-label">Role</label>
+              <select class="field-select" id="user-role" required>
+                <option value="super_admin">Super Admin (CEO)</option>
+                <option value="admin">Admin (CS & Operasional)</option>
+                <option value="affiliate">Affiliate (Mitra)</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-user')">Batal</button>
+            <button type="submit" class="btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function openUserModal(id) {
+  document.getElementById('user-form').reset();
+  document.getElementById('user-id').value = '';
+  document.getElementById('user-modal-title').textContent = id ? 'Edit User' : 'Tambah User';
+  if (id) {
+    const u = getUser(id);
+    document.getElementById('user-id').value = u.id;
+    document.getElementById('user-name').value = u.name;
+    document.getElementById('user-email').value = u.email;
+    document.getElementById('user-password').value = u.password;
+    document.getElementById('user-role').value = u.role;
+  }
+  openModal('modal-user');
+}
+
+function submitUser(event) {
+  event.preventDefault();
+  const id = document.getElementById('user-id').value;
+  const data = {
+    name: document.getElementById('user-name').value.trim(),
+    email: document.getElementById('user-email').value.trim(),
+    password: document.getElementById('user-password').value,
+    role: document.getElementById('user-role').value
+  };
+
+  if (id) {
+    const u = getUser(Number(id));
+    Object.assign(u, data);
+    showToast('User berhasil diperbarui.');
+  } else {
+    DB.users.push({ id: nextId(DB.users), ...data });
+    showToast('User baru berhasil ditambahkan.');
+  }
+  saveData();
+  closeModal('modal-user');
+  renderKelolaUser();
+}
+
+function deleteUser(id) {
+  if (id === currentUser.id) { showToast('Anda tidak bisa menghapus akun sendiri.'); return; }
+  if (!confirm('Hapus user ini?')) return;
+  DB.users = DB.users.filter(u => u.id !== id);
+  saveData();
+  showToast('User dihapus.');
+  renderKelolaUser();
+}
+
+/* ---------- 5. Kelola Produk ---------- */
+function getProductCatalog() {
+  const seen = new Map();
+  DB.orders.forEach(o => {
+    if (!seen.has(o.product)) seen.set(o.product, { name: o.product, price: o.price, totalSold: 0 });
+    seen.get(o.product).totalSold += o.qty;
+  });
+  return Array.from(seen.values());
+}
+
+function renderKelolaProduk() {
+  const products = getProductCatalog();
+  document.getElementById('view-kelola-produk').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Kelola Produk</div>
+          <div class="panel-sub">Daftar produk berdasarkan histori order (${products.length} jenis produk)</div>
+        </div>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama Produk</th><th>Harga Satuan</th><th>Total Terjual</th></tr></thead>
+            <tbody>
+              ${products.length === 0 ? `<tr class="empty-row"><td colspan="3">Belum ada data produk.</td></tr>` :
+                products.map(p => `
+                  <tr>
+                    <td class="cell-strong">${p.name}</td>
+                    <td>${formatRupiah(p.price)}</td>
+                    <td>${p.totalSold.toLocaleString('id-ID')} unit</td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px; color:var(--gray-text); letter-spacing:0.03em;">
+      Catatan: katalog produk diturunkan otomatis dari data order yang tercatat. Tambahkan order baru di menu "Kelola Order" untuk menambah jenis produk.
+    </p>
+  `;
+}
+
+/* ---------- 6. Kelola Order (Super Admin) ---------- */
+/* renderKelolaOrder digunakan bersama oleh Super Admin & Admin, didefinisikan di views-admin.js */
+
+</script>
+<script>
+/* ============================================================
+   VIEWS — ADMIN (CS & Operasional)
+   Juga dipakai sebagian oleh Super Admin (kelola order, read-only)
+   ============================================================ */
+
+/* ---------- Dashboard Operasional ---------- */
+function renderDashboardOperasional() {
+  const today = '2026-06-27';
+  const todayOrders = DB.orders.filter(o => o.date === today);
+  const needsProcessing = DB.orders.filter(o => o.status === 'baru' || o.status === 'proses');
+
+  document.getElementById('view-dashboard-operasional').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Order Hari Ini</div>
+        <div class="stat-value">${todayOrders.length}</div>
+        <div class="stat-delta flat">27 Juni 2026</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Perlu Segera Diproses</div>
+        <div class="stat-value">${needsProcessing.length}</div>
+        <div class="stat-delta ${needsProcessing.length > 0 ? 'down' : 'up'}">Status baru / proses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Klien Aktif</div>
+        <div class="stat-value">${DB.clients.length}</div>
+        <div class="stat-delta flat">Terdaftar di sistem</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Affiliate Aktif</div>
+        <div class="stat-value">${DB.affiliates.filter(a => a.active).length}</div>
+        <div class="stat-delta flat">dari ${DB.affiliates.length} total</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Pesanan yang Perlu Segera Diproses</div>
+          <div class="panel-sub">Status: baru atau dalam proses</div>
+        </div>
+        <button class="btn-secondary btn-sm" onclick="navigateTo('kelola-order')">Lihat Semua Order</button>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Klien</th><th>Produk</th><th>Qty</th><th>Tanggal</th><th>Status</th></tr></thead>
+            <tbody>
+              ${needsProcessing.length === 0 ? `<tr class="empty-row"><td colspan="5">Tidak ada order yang perlu diproses saat ini. 👍</td></tr>` :
+                needsProcessing.map(o => {
+                  const c = getClient(o.clientId);
+                  return `<tr>
+                    <td class="cell-strong">${c ? c.name : '-'}</td>
+                    <td>${o.product}</td>
+                    <td>${o.qty.toLocaleString('id-ID')}</td>
+                    <td>${formatDate(o.date)}</td>
+                    <td><span class="badge ${STATUS_LABELS[o.status].badge}">${STATUS_LABELS[o.status].label}</span></td>
+                  </tr>`;
+                }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- Kelola Order (dipakai Admin penuh, Super Admin read-only) ---------- */
+let orderPage = 1;
+const ORDER_PAGE_SIZE = 5;
+
+function renderKelolaOrder(viewId, readOnly) {
+  const sorted = [...DB.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / ORDER_PAGE_SIZE));
+  if (orderPage > totalPages) orderPage = totalPages;
+  const pageItems = sorted.slice((orderPage - 1) * ORDER_PAGE_SIZE, orderPage * ORDER_PAGE_SIZE);
+
+  document.getElementById('view-' + viewId).innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Daftar Order</div>
+          <div class="panel-sub">${DB.orders.length} order tercatat${readOnly ? ' — mode lihat saja' : ''}</div>
+        </div>
+        ${readOnly ? '' : `<button class="btn-primary" onclick="openOrderModal()"><i class="fa-solid fa-plus"></i> Order Baru</button>`}
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Klien</th><th>Produk</th><th>Qty</th><th>Total</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr>
+            </thead>
+            <tbody>
+              ${pageItems.length === 0 ? `<tr class="empty-row"><td colspan="7">Belum ada order.</td></tr>` :
+                pageItems.map(o => {
+                  const c = getClient(o.clientId);
+                  return `<tr>
+                    <td class="cell-strong">${c ? c.name : '-'}</td>
+                    <td>${o.product}</td>
+                    <td>${o.qty.toLocaleString('id-ID')}</td>
+                    <td>${formatRupiah(orderTotal(o))}</td>
+                    <td>${formatDate(o.date)}</td>
+                    <td><span class="badge ${STATUS_LABELS[o.status].badge}">${STATUS_LABELS[o.status].label}</span></td>
+                    <td class="table-actions">
+                      ${readOnly ? '<span class="cell-muted">—</span>' : `
+                        <a onclick="cycleOrderStatus(${o.id}, '${viewId}')">Ubah Status</a>
+                        <a class="btn-danger" onclick="deleteOrder(${o.id}, '${viewId}')">Hapus</a>
+                      `}
+                    </td>
+                  </tr>`;
+                }).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span>Halaman ${orderPage} dari ${totalPages}</span>
+          <div class="pagination-btns">
+            <button class="page-btn" ${orderPage <= 1 ? 'disabled' : ''} onclick="changeOrderPage(${orderPage - 1}, '${viewId}', ${readOnly})"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="page-btn" ${orderPage >= totalPages ? 'disabled' : ''} onclick="changeOrderPage(${orderPage + 1}, '${viewId}', ${readOnly})"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${readOnly ? '' : `
+    <div class="modal-overlay" id="modal-order">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">Order Baru</div>
+          <button class="modal-close" onclick="closeModal('modal-order')">&times;</button>
+        </div>
+        <form id="order-form" onsubmit="submitOrder(event, '${viewId}')">
+          <div class="modal-body">
+            <div>
+              <label class="field-label">Klien</label>
+              <select class="field-select" id="order-client" required>
+                ${DB.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Nama Produk</label>
+              <input class="field-input" id="order-product" required placeholder="Contoh: Cetak Brosur A5">
+            </div>
+            <div class="form-row">
+              <div>
+                <label class="field-label">Qty</label>
+                <input type="number" min="1" class="field-input" id="order-qty" required>
+              </div>
+              <div>
+                <label class="field-label">Harga Satuan (Rp)</label>
+                <input type="number" min="0" class="field-input" id="order-price" required>
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Tanggal Order</label>
+              <input type="date" class="field-input" id="order-date" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-order')">Batal</button>
+            <button type="submit" class="btn-primary">Simpan Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    `}
+  `;
+}
+
+function changeOrderPage(page, viewId, readOnly) {
+  orderPage = page;
+  renderKelolaOrder(viewId, readOnly);
+}
+
+function openOrderModal() {
+  document.getElementById('order-form').reset();
+  document.getElementById('order-date').value = '2026-06-27';
+  openModal('modal-order');
+}
+
+function submitOrder(event, viewId) {
+  event.preventDefault();
+  const data = {
+    id: nextId(DB.orders),
+    clientId: Number(document.getElementById('order-client').value),
+    product: document.getElementById('order-product').value.trim(),
+    qty: Number(document.getElementById('order-qty').value),
+    price: Number(document.getElementById('order-price').value),
+    date: document.getElementById('order-date').value,
+    status: 'baru',
+    affiliateId: null
+  };
+  DB.orders.push(data);
+  saveData();
+  closeModal('modal-order');
+  showToast('Order baru berhasil dibuat.');
+  orderPage = 1;
+  renderKelolaOrder(viewId, false);
+}
+
+function cycleOrderStatus(id, viewId) {
+  const o = DB.orders.find(x => x.id === id);
+  if (!o) return;
+  const order = ['baru', 'proses', 'kirim', 'selesai'];
+  const idx = order.indexOf(o.status);
+  o.status = order[(idx + 1) % order.length];
+  saveData();
+  showToast(`Status order diubah ke "${STATUS_LABELS[o.status].label}".`);
+  renderKelolaOrder(viewId, false);
+}
+
+function deleteOrder(id, viewId) {
+  if (!confirm('Hapus order ini?')) return;
+  DB.orders = DB.orders.filter(o => o.id !== id);
+  saveData();
+  showToast('Order dihapus.');
+  renderKelolaOrder(viewId, false);
+}
+
+/* ---------- Data Klien ---------- */
+function renderKelolaKlien() {
+  document.getElementById('view-kelola-klien').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Data Klien</div>
+          <div class="panel-sub">${DB.clients.length} klien terdaftar</div>
+        </div>
+        <button class="btn-primary" onclick="openClientModal()"><i class="fa-solid fa-plus"></i> Tambah Klien</button>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama</th><th>Email</th><th>Telepon</th><th>Alamat</th><th>Aksi</th></tr></thead>
+            <tbody>
+              ${DB.clients.length === 0 ? `<tr class="empty-row"><td colspan="5">Belum ada klien.</td></tr>` :
+                DB.clients.map(c => `
+                  <tr>
+                    <td class="cell-strong">${c.name}</td>
+                    <td class="cell-muted">${c.email}</td>
+                    <td>${c.phone}</td>
+                    <td class="cell-muted" style="max-width:220px;">${c.address}</td>
+                    <td class="table-actions">
+                      <a onclick="openClientModal(${c.id})">Edit</a>
+                      <a class="btn-danger" onclick="deleteClient(${c.id})">Hapus</a>
+                    </td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-client">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title" id="client-modal-title">Tambah Klien</div>
+          <button class="modal-close" onclick="closeModal('modal-client')">&times;</button>
+        </div>
+        <form id="client-form" onsubmit="submitClient(event)">
+          <input type="hidden" id="client-id">
+          <div class="modal-body">
+            <div><label class="field-label">Nama</label><input class="field-input" id="client-name" required></div>
+            <div><label class="field-label">Email</label><input type="email" class="field-input" id="client-email" required></div>
+            <div><label class="field-label">Telepon</label><input class="field-input" id="client-phone" required></div>
+            <div><label class="field-label">Alamat</label><textarea class="field-textarea" id="client-address" required></textarea></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-client')">Batal</button>
+            <button type="submit" class="btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function openClientModal(id) {
+  document.getElementById('client-form').reset();
+  document.getElementById('client-id').value = '';
+  document.getElementById('client-modal-title').textContent = id ? 'Edit Klien' : 'Tambah Klien';
+  if (id) {
+    const c = getClient(id);
+    document.getElementById('client-id').value = c.id;
+    document.getElementById('client-name').value = c.name;
+    document.getElementById('client-email').value = c.email;
+    document.getElementById('client-phone').value = c.phone;
+    document.getElementById('client-address').value = c.address;
+  }
+  openModal('modal-client');
+}
+
+function submitClient(event) {
+  event.preventDefault();
+  const id = document.getElementById('client-id').value;
+  const data = {
+    name: document.getElementById('client-name').value.trim(),
+    email: document.getElementById('client-email').value.trim(),
+    phone: document.getElementById('client-phone').value.trim(),
+    address: document.getElementById('client-address').value.trim()
+  };
+  if (id) {
+    Object.assign(getClient(Number(id)), data);
+    showToast('Data klien diperbarui.');
+  } else {
+    DB.clients.push({ id: nextId(DB.clients), ...data });
+    showToast('Klien baru ditambahkan.');
+  }
+  saveData();
+  closeModal('modal-client');
+  renderKelolaKlien();
+}
+
+function deleteClient(id) {
+  if (!confirm('Hapus klien ini? Order terkait tidak akan terhapus.')) return;
+  DB.clients = DB.clients.filter(c => c.id !== id);
+  saveData();
+  showToast('Klien dihapus.');
+  renderKelolaKlien();
+}
+
+/* ---------- Program Affiliate (kelola, oleh Admin) ---------- */
+function renderKelolaAffiliate() {
+  document.getElementById('view-kelola-affiliate').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Program Affiliate</div>
+          <div class="panel-sub">${DB.affiliates.length} affiliate terdaftar</div>
+        </div>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama Affiliate</th><th>Link Referral</th><th>Klik</th><th>Komisi</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody>
+              ${DB.affiliates.length === 0 ? `<tr class="empty-row"><td colspan="6">Belum ada affiliate.</td></tr>` :
+                DB.affiliates.map(a => {
+                  const u = getUser(a.userId);
+                  return `<tr>
+                    <td class="cell-strong">${u ? u.name : '-'}</td>
+                    <td class="cell-muted">${a.referralLink}</td>
+                    <td>${a.clicks}</td>
+                    <td>
+                      <input type="number" min="0" max="100" value="${a.commissionRate}"
+                        style="width:60px; padding:6px 8px; border:1px solid var(--gray-mid); font-size:11px;"
+                        onchange="updateCommission(${a.id}, this.value)"> %
+                    </td>
+                    <td><span class="badge ${a.active ? 'badge-green' : 'badge-gray'}">${a.active ? 'Aktif' : 'Nonaktif'}</span></td>
+                    <td class="table-actions">
+                      <a onclick="toggleAffiliateActive(${a.id})">${a.active ? 'Nonaktifkan' : 'Aktifkan'}</a>
+                    </td>
+                  </tr>`;
+                }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateCommission(id, value) {
+  const a = DB.affiliates.find(x => x.id === id);
+  if (!a) return;
+  a.commissionRate = Math.max(0, Math.min(100, Number(value) || 0));
+  saveData();
+  showToast(`Komisi diperbarui ke ${a.commissionRate}%.`);
+}
+
+function toggleAffiliateActive(id) {
+  const a = DB.affiliates.find(x => x.id === id);
+  if (!a) return;
+  a.active = !a.active;
+  saveData();
+  showToast(`Affiliate ${a.active ? 'diaktifkan' : 'dinonaktifkan'}.`);
+  renderKelolaAffiliate();
+}
+
+/* ---------- Buat Invoice ---------- */
+function renderBuatInvoice() {
+  document.getElementById('view-buat-invoice').innerHTML = `
+    <div class="panel no-print">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Buat Invoice</div>
+          <div class="panel-sub">Pilih order untuk dicetak menjadi invoice</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <label class="field-label">Pilih Order</label>
+        <select class="field-select" id="invoice-order-select" onchange="renderInvoicePreview()" style="margin-bottom:0;">
+          <option value="">— Pilih order —</option>
+          ${DB.orders.map(o => {
+            const c = getClient(o.clientId);
+            return `<option value="${o.id}">#INV-${String(o.id).padStart(4, '0')} — ${c ? c.name : '-'} — ${o.product}</option>`;
+          }).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div id="invoice-preview-wrap"></div>
+  `;
+}
+
+function renderInvoicePreview() {
+  const orderId = Number(document.getElementById('invoice-order-select').value);
+  const wrap = document.getElementById('invoice-preview-wrap');
+  if (!orderId) { wrap.innerHTML = ''; return; }
+
+  const o = DB.orders.find(x => x.id === orderId);
+  const c = getClient(o.clientId);
+  const total = orderTotal(o);
+  const invoiceNo = 'INV-' + String(o.id).padStart(4, '0');
+
+  wrap.innerHTML = `
+    <div class="no-print" style="margin-bottom:16px; display:flex; gap:10px;">
+      <button class="btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak Invoice</button>
+    </div>
+    <div class="invoice-paper">
+      <div class="invoice-top">
+        <div class="invoice-brand">Percetakan Jaya</div>
+        <div class="invoice-meta">
+          <div><b>No. Invoice:</b> ${invoiceNo}</div>
+          <div><b>Tanggal:</b> ${formatDate(o.date)}</div>
+          <div><b>Status:</b> ${STATUS_LABELS[o.status].label}</div>
+        </div>
+      </div>
+      <div class="invoice-parties">
+        <div>
+          <div class="invoice-party-label">Ditagihkan Kepada</div>
+          <div class="invoice-party-name">${c ? c.name : '-'}</div>
+          <div class="cell-muted" style="font-size:11px; margin-top:4px;">${c ? c.address : ''}</div>
+          <div class="cell-muted" style="font-size:11px;">${c ? c.email : ''} · ${c ? c.phone : ''}</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Produk</th><th>Qty</th><th>Harga Satuan</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="cell-strong">${o.product}</td>
+              <td>${o.qty.toLocaleString('id-ID')}</td>
+              <td>${formatRupiah(o.price)}</td>
+              <td>${formatRupiah(total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="invoice-totals">
+        <div class="invoice-total-row"><span>Subtotal</span><span>${formatRupiah(total)}</span></div>
+        <div class="invoice-total-row grand"><span>Total</span><span>${formatRupiah(total)}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+</script>
+<script>
+/* ============================================================
+   VIEWS — AFFILIATE
+   ============================================================ */
+
+function renderDashboardAffiliate() {
+  const aff = getAffiliateByUserId(currentUser.id);
+  if (!aff) {
+    document.getElementById('view-dashboard-affiliate').innerHTML = `<p class="cell-muted">Data affiliate tidak ditemukan untuk akun ini.</p>`;
+    return;
+  }
+  const myOrders = DB.orders.filter(o => o.affiliateId === aff.id);
+  const successOrders = myOrders.filter(o => o.status === 'selesai' || o.status === 'kirim');
+  const commissionEarned = successOrders.reduce((sum, o) => sum + orderTotal(o) * (aff.commissionRate / 100), 0);
+  const commissionPending = myOrders.filter(o => o.status === 'baru' || o.status === 'proses')
+    .reduce((sum, o) => sum + orderTotal(o) * (aff.commissionRate / 100), 0);
+
+  document.getElementById('view-dashboard-affiliate').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Klik Referral</div>
+        <div class="stat-value">${aff.clicks.toLocaleString('id-ID')}</div>
+        <div class="stat-delta flat">Sepanjang waktu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Order Berhasil</div>
+        <div class="stat-value">${successOrders.length}</div>
+        <div class="stat-delta flat">dari ${myOrders.length} order via link Anda</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Komisi Terkumpul</div>
+        <div class="stat-value">${formatRupiah(commissionEarned)}</div>
+        <div class="stat-delta up">Sudah final / siap cair</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Komisi Belum Cair</div>
+        <div class="stat-value">${formatRupiah(commissionPending)}</div>
+        <div class="stat-delta flat">Order masih berjalan</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Order dari Link Referral Anda</div>
+          <div class="panel-sub">Komisi: ${aff.commissionRate}% per order</div>
+        </div>
+      </div>
+      <div class="panel-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produk</th><th>Qty</th><th>Total Order</th><th>Komisi Anda</th><th>Status</th></tr></thead>
+            <tbody>
+              ${myOrders.length === 0 ? `<tr class="empty-row"><td colspan="5">Belum ada order dari link referral Anda.</td></tr>` :
+                myOrders.map(o => `
+                  <tr>
+                    <td class="cell-strong">${o.product}</td>
+                    <td>${o.qty.toLocaleString('id-ID')}</td>
+                    <td>${formatRupiah(orderTotal(o))}</td>
+                    <td class="cell-strong">${formatRupiah(orderTotal(o) * (aff.commissionRate / 100))}</td>
+                    <td><span class="badge ${STATUS_LABELS[o.status].badge}">${STATUS_LABELS[o.status].label}</span></td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLinkReferral() {
+  const aff = getAffiliateByUserId(currentUser.id);
+  if (!aff) {
+    document.getElementById('view-link-referral').innerHTML = `<p class="cell-muted">Data affiliate tidak ditemukan.</p>`;
+    return;
+  }
+
+  document.getElementById('view-link-referral').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Link Referral Anda</div>
+      </div>
+      <div class="panel-body">
+        <div class="referral-box">
+          <div>
+            <label class="field-label">Link Unik</label>
+            <div class="referral-link-row">
+              <input class="referral-link-input" id="referral-link-text" value="${aff.referralLink}" readonly>
+              <button class="btn-secondary btn-sm" onclick="copyReferralLink()"><i class="fa-solid fa-copy"></i> Salin</button>
+            </div>
+          </div>
+          ${aff.coupon ? `
+            <div>
+              <label class="field-label">Kode Kupon</label>
+              <div class="coupon-display"><i class="fa-solid fa-ticket"></i> ${aff.coupon}</div>
+            </div>
+          ` : ''}
+          <p style="font-size:11px; color:var(--gray-text); letter-spacing:0.03em; line-height:1.7;">
+            Bagikan link atau kode kupon ini ke calon klien. Setiap klik dan order yang masuk melalui link Anda akan otomatis tercatat di dashboard performa.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function copyReferralLink() {
+  const input = document.getElementById('referral-link-text');
+  input.select();
+  try {
+    navigator.clipboard.writeText(input.value);
+    showToast('Link referral disalin ke clipboard.');
+  } catch (e) {
+    showToast('Gagal menyalin. Salin manual dari kolom di atas.');
+  }
+}
+
+function renderStatistikAffiliate() {
+  const aff = getAffiliateByUserId(currentUser.id);
+  if (!aff) {
+    document.getElementById('view-statistik-affiliate').innerHTML = `<p class="cell-muted">Data affiliate tidak ditemukan.</p>`;
+    return;
+  }
+
+  // Simulasi statistik mingguan dari total klik (distribusi sederhana, deterministik)
+  const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  const weights = [0.18, 0.12, 0.15, 0.1, 0.2, 0.14, 0.11];
+  const dailyClicks = weights.map(w => Math.round(aff.clicks * w / 4)); // perkiraan klik per hari, skala mingguan
+  const maxClicks = Math.max(...dailyClicks, 1);
+
+  document.getElementById('view-statistik-affiliate').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Statistik Klik Mingguan</div>
+          <div class="panel-sub">Estimasi distribusi klik referral per hari (minggu ini)</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="bar-list">
+          ${days.map((d, i) => `
+            <div class="bar-row">
+              <div class="bar-label">${d}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${(dailyClicks[i] / maxClicks) * 100}%"></div></div>
+              <div class="bar-value">${dailyClicks[i]}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-value">${aff.clicks > 0 ? ((DB.orders.filter(o => o.affiliateId === aff.id).length / aff.clicks) * 100).toFixed(1) : 0}%</div>
+        <div class="stat-delta flat">Order / Total Klik</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rate Komisi Anda</div>
+        <div class="stat-value">${aff.commissionRate}%</div>
+        <div class="stat-delta flat">Per order berhasil</div>
+      </div>
+    </div>
+  `;
+}
+
+</script>
+<script>
+  // Update page title setiap kali navigasi
+  const PAGE_TITLES = {
+    'dashboard-keuangan': 'Dashboard Keuangan',
+    'dashboard-performa': 'Dashboard Performa Bisnis',
+    'instruksi-produksi': 'Instruksi Produksi',
+    'kelola-user': 'Kelola User',
+    'kelola-produk': 'Kelola Produk',
+    'kelola-order-superadmin': 'Kelola Order',
+    'dashboard-operasional': 'Dashboard Operasional',
+    'kelola-order': 'Kelola Order',
+    'kelola-klien': 'Data Klien',
+    'kelola-affiliate': 'Program Affiliate',
+    'buat-invoice': 'Buat Invoice',
+    'dashboard-affiliate': 'Dashboard Performa Affiliate',
+    'link-referral': 'Link Referral & Kupon',
+    'statistik-affiliate': 'Statistik'
+  };
+
+  const originalNavigateTo = navigateTo;
+  navigateTo = function(viewId) {
+    originalNavigateTo(viewId);
+    const activeView = document.querySelector('.nav-item.active');
+    const activeId = activeView ? activeView.dataset.view : viewId;
+    document.getElementById('page-title').textContent = PAGE_TITLES[activeId] || 'Dashboard';
+  };
+
+  // Reset orderPage setiap pindah ke menu order agar selalu mulai dari halaman 1
+  document.addEventListener('DOMContentLoaded', () => {
+    initAuth();
+  });
+</script>
+
+</body>
+</html>
