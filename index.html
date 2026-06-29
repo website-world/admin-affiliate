@@ -6,6 +6,7 @@
   <title>Admin — Sistem Terintegrasi</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    /* CSS sama seperti sebelumnya, tidak ada perubahan */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --white: #ffffff;
@@ -299,7 +300,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -316,9 +316,6 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-
-    // Pastikan sesi tetap tersimpan
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Persistence error:', err));
 
     let currentUser = null;
     let currentRole = null;
@@ -355,7 +352,51 @@
       ]
     };
 
-    /* ---------- AUTH ---------- */
+    /* ---------- PERSISTENCE & AUTH ---------- */
+    (async () => {
+      try {
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        console.log('Session persistence set to LOCAL');
+      } catch (err) {
+        console.error('Persistence error:', err);
+      }
+      setupAuthListener();
+    })();
+
+    function setupAuthListener() {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists && ['super_admin','admin','affiliate'].includes(userDoc.data().role)) {
+              currentUser = userDoc.data();
+              currentUser.uid = user.uid;
+              currentRole = userDoc.data().role;
+              localStorage.setItem('currentAdminUser', JSON.stringify(currentUser));
+              if (!document.getElementById('app-shell').classList.contains('active')) showApp();
+            } else {
+              await auth.signOut();
+              localStorage.removeItem('currentAdminUser');
+            }
+          } catch (err) {
+            console.error('Gagal memuat data admin:', err);
+            const cached = localStorage.getItem('currentAdminUser');
+            if (cached) {
+              currentUser = JSON.parse(cached);
+              currentRole = currentUser.role;
+              showApp();
+              showToast('Menggunakan data offline');
+            } else {
+              showLogin();
+            }
+          }
+        } else {
+          showLogin();
+        }
+      });
+    }
+
+    // Login form
     document.querySelectorAll('.role-pill').forEach(pill => {
       pill.addEventListener('click', function() {
         selectedRole = this.dataset.role;
@@ -389,37 +430,6 @@
       }
     });
 
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const userDoc = await db.collection('users').doc(user.uid).get();
-          if (userDoc.exists && ['super_admin','admin','affiliate'].includes(userDoc.data().role)) {
-            currentUser = userDoc.data();
-            currentUser.uid = user.uid;
-            currentRole = userDoc.data().role;
-            localStorage.setItem('currentAdminUser', JSON.stringify(currentUser));
-            if (!document.getElementById('app-shell').classList.contains('active')) showApp();
-          } else {
-            await auth.signOut();
-          }
-        } catch (err) {
-          console.error('Gagal memuat data admin:', err);
-          // Fallback ke localStorage
-          const cached = localStorage.getItem('currentAdminUser');
-          if (cached) {
-            currentUser = JSON.parse(cached);
-            currentRole = currentUser.role;
-            showApp();
-            showToast('Menggunakan data offline');
-          } else {
-            showLogin();
-          }
-        }
-      } else {
-        showLogin();
-      }
-    });
-
     function showLogin() {
       document.getElementById('login-screen').classList.add('active');
       document.getElementById('app-shell').classList.remove('active');
@@ -442,7 +452,6 @@
       localStorage.removeItem('currentAdminUser');
     }
 
-    /* ---------- SIDEBAR ---------- */
     function renderSidebar() {
       const nav = document.getElementById('sidebar-nav');
       const groups = NAV_CONFIG[currentRole] || [];
@@ -457,7 +466,6 @@
       `).join('');
     }
 
-    /* ---------- NAVIGATION ---------- */
     function navigateTo(viewId) {
       if (!currentRole) return;
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -490,7 +498,7 @@
             <div class="stat-card"><div class="stat-label">Produk</div><div class="stat-value">${prodSnap.size}</div></div>
             <div class="stat-card"><div class="stat-label">Presensi Hari Ini</div><div class="stat-value">${attSnap.size}</div></div>
           </div>`;
-      } else if (currentRole === 'affiliate') {
+      } else {
         const doc = await db.collection('users').doc(currentUser.uid).get();
         const data = doc.data();
         container.innerHTML = `
@@ -503,7 +511,7 @@
       }
     }
 
-    /* ---------- PRODUCTS (CRUD) ---------- */
+    /* ---------- PRODUCTS ---------- */
     function loadProducts() {
       db.collection('products').onSnapshot(snap => {
         products = [];
@@ -570,7 +578,6 @@
           const price = Number(document.getElementById('prod-price').value);
           const sale = document.getElementById('prod-sale').value === 'true';
           const thumbFile = document.getElementById('prod-thumb').files[0];
-
           let thumbnailBase64 = '';
           if (thumbFile) {
             thumbnailBase64 = await compressAndToBase64(thumbFile, 300, 300, 0.7);
@@ -578,14 +585,7 @@
             const existing = products.find(p => p.id === id);
             thumbnailBase64 = existing ? existing.thumbnailBase64 || '' : '';
           }
-
-          const docData = {
-            name,
-            price,
-            sale,
-            thumbnailBase64,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
+          const docData = { name, price, sale, thumbnailBase64, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
           if (id) {
             await db.collection('products').doc(id).update(docData);
           } else {
@@ -715,7 +715,7 @@
       showToast(`Pengguna ${active ? 'diaktifkan' : 'dinonaktifkan'}.`);
     }
 
-    /* ---------- REFERRAL (AFFILIATE) ---------- */
+    /* ---------- REFERRAL ---------- */
     async function loadReferral() {
       const container = document.getElementById('view-referral');
       const doc = await db.collection('users').doc(currentUser.uid).get();
